@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nluz-cleaning-toolbox"
+version = "0.1.0"
+description = "A modular, Lego-like toolbox for data cleaning and image preprocessing"
+readme = "README.md"
+authors = [
+    {name = "Tengku Irfan", email = "tengku.irfan0278@student.unri.ac.id"}
+]
+license = {text = "MIT"}
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+keywords = ["data-cleaning", "image-preprocessing", "data-science", "machine-learning"]
+dependencies = [
+    "numpy",
+    "opencv-python",
+    "pandas",
+    "scikit-learn",
+    "scipy",
+]
+requires-python = ">=3.8"
+
+[project.urls]
+Homepage = "https://github.com/tengkuirfan/nluz-cleaning-toolbox"
+"Bug Reports" = "https://github.com/tengkuirfan/nluz-cleaning-toolbox/issues"
+"Source Code" = "https://github.com/tengkuirfan/nluz-cleaning-toolbox"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["nluztoolbox*"]
+exclude = ["tests*"]
