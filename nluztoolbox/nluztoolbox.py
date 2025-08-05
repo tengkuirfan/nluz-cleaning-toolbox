@@ -232,5 +232,13 @@ class ImageCleaning:
         self.images = {k: denoisers[method](img) for k, img in self.images.items()}
         return self
 
+    def process_image(self, func):
+        """
+        Apply a custom function to each image.
+        The function should take a single image and return a processed image.
+        """
+        self.images = {k: func(img) for k, img in self.images.items()}
+        return self
+
     def get(self):
         return self.images

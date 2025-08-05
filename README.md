@@ -26,6 +26,7 @@ A modular, Lego-like toolbox for **data cleaning** and **image preprocessing**, 
 | `convert_color()` | Convert images to different color modes | `mode="grayscale"` | `"grayscale"`, `"rgb"` |
 | `normalize()` | Normalize pixel values | `method="0-1"` | `"0-1"` (scale to [0,1]), `"minus1-1"` (scale to [-1,1]) |
 | `denoise()` | Apply denoising filters to images | `method="gaussian"` | `"gaussian"`, `"median"`, `"bilateral"`, `"box"`, `"nl_means"`, `"fastnl"` |
+| `process_image()` | Apply custom function to each image | `func` | Any custom function that takes an image and returns processed image |
 | `get()` | Return the processed images dictionary | None | Returns `dict` of processed images |
 
 ### Usage Notes
