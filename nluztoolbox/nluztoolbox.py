@@ -138,6 +138,16 @@ class DataCleaning:
         self.df = self.df.assign(**{column + "Category": bin_methods[method]()})
         return self
     
+    def astype(self, columns, dtype):
+        """
+        Convert specified columns to a given dtype.
+        columns: list of column names
+        dtype: target data type (e.g., 'float', 'int', 'str')
+        """
+        for col in columns:
+            self.df[col] = self.df[col].astype(dtype)
+        return self
+
     def process_column(self, column, func):
         """
         Apply a custom function to a specified column.

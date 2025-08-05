@@ -14,6 +14,7 @@ A modular, Lego-like toolbox for **data cleaning** and **image preprocessing**, 
 | `handle_outliers_iqr()` | Handle outliers using IQR method | `columns`, `k=1.5`, `action="remove"` | Actions: `"remove"`, `"nan"` |
 | `scale()` | Scale columns using various methods | `columns`, `method="standard"` | `"standard"`, `"minmax"`, `"robust"` |
 | `binning()` | Create bins for continuous data | `column`, `method="cut"`, `bins=None`, `labels=None`, `q=None` | `"cut"`, `"qcut"`, `"mapping"` |
+| `astype()` | Convert columns to specified data type | `columns`, `dtype` | Any valid pandas dtype: `"int"`, `"float"`, `"str"`, `"bool"`, etc. |
 | `process_column()` | Apply custom function to a column | `column`, `func` | Any custom function that takes a value and returns processed value |
 | `get()` | Return the processed DataFrame | None | Returns `pd.DataFrame` |
 
