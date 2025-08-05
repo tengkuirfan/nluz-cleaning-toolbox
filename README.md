@@ -2,6 +2,8 @@
 
 A modular, Lego-like toolbox for **data cleaning** and **image preprocessing**, built for fast, reusable workflows. Currently, it is under closed testing and not yet available for public release.
 
+Check demo folder in the source code for example.
+
 ## Methods Reference
 
 ### DataCleaning Class Methods
@@ -15,7 +17,7 @@ A modular, Lego-like toolbox for **data cleaning** and **image preprocessing**, 
 | `scale()` | Scale columns using various methods | `columns`, `method="standard"` | `"standard"`, `"minmax"`, `"robust"` |
 | `binning()` | Create bins for continuous data | `column`, `method="cut"`, `bins=None`, `labels=None`, `q=None` | `"cut"`, `"qcut"`, `"mapping"` |
 | `astype()` | Convert columns to specified data type | `columns`, `dtype` | Any valid pandas dtype: `"int"`, `"float"`, `"str"`, `"bool"`, etc. |
-| `process_column()` | Apply custom function to a column | `column`, `func` | Any custom function that takes a value and returns processed value |
+| `process_column()` | Apply custom function to existing column or create new column from row data | `column`, `func` | Function takes single value (if column exists) or entire row (if creating new column) |
 | `get()` | Return the processed DataFrame | None | Returns `pd.DataFrame` |
 
 ### ImageCleaning Class Methods
@@ -61,19 +63,4 @@ pip install -e .
 git clone https://github.com/tengkuirfan/nluz-cleaning-toolbox.git
 cd nluz-cleaning-toolbox
 pip install -e ".[dev]"
-```
-
-## Quick Start
-
-```python
-from nluztoolbox import DataCleaning, ImageCleaning
-import pandas as pd
-
-# Data cleaning example
-df = pd.DataFrame({'price': ['Rp1,000', 'Rp2,500'], 'rating': [4.5, None]})
-cleaner = DataCleaning(df)
-clean_df = (cleaner
-           .replace_symbols(['price'], symbols=['Rp', ','])
-           .handle_missing(['rating'], method='mean')
-           .get())
 ```

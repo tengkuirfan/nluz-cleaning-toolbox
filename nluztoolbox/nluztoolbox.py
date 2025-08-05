@@ -151,9 +151,13 @@ class DataCleaning:
     def process_column(self, column, func):
         """
         Apply a custom function to a specified column.
-        The function should take a single value and return a processed value.
+        If the column does not exist, create it by applying the function to each row.
+        The function should take a single value (or row if column is missing) and return a processed value.
         """
-        self.df[column] = self.df[column].apply(func)
+        if column in self.df.columns:
+            self.df[column] = self.df[column].apply(func)
+        else:
+            self.df[column] = self.df.apply(lambda row: func(row), axis=1)
         return self
 
     def get(self):
