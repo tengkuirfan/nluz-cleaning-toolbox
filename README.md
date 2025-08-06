@@ -11,7 +11,7 @@ Check demo folder in the source code for example.
 | Method | Description | Parameters | Supported Options |
 |--------|-------------|------------|-------------------|
 | `replace_symbols()` | Replace specified symbols in columns | `columns`, `symbols=None`, `replacement=""` | Default symbols: `,`, `.`, `!`, `?`, `$`, `%`, `&` |
-| `handle_missing()` | Handle missing data using various strategies | `columns`, `method="mean"`, `fill_value=None`, `func=None`, `ref_col=None` | `"mean"`, `"median"`, `"mode"`, `"drop"`, `"value"`, `"column"`, `"ffill"`, `"bfill"`, `"interpolate"`, `"function"` |
+| `handle_missing()` | Handle missing data using various strategies | `columns`, `method="mean"`, `fill_value=None`, `func=None`, `ref_col=None` | `"mean"`, `"median"`, `"drop"`, `"value"`, `"column"`, `"ffill"`, `"bfill"`, `"interpolate"`, `"function"` |
 | `handle_outliers_zscore()` | Handle outliers using Z-score method | `columns`, `threshold=2`, `action="remove"` | Actions: `"remove"`, `"nan"` |
 | `handle_outliers_iqr()` | Handle outliers using IQR method | `columns`, `k=1.5`, `action="remove"` | Actions: `"remove"`, `"nan"` |
 | `scale()` | Scale columns using various methods | `columns`, `method="standard"` | `"standard"`, `"minmax"`, `"robust"` |
