@@ -8,7 +8,7 @@ with open("requirements.txt", "r", encoding="utf-8") as fh:
 
 setup(
     name="nluz-cleaning-toolbox",
-    version="0.2.0",
+    version="0.2.1",
     author="Tengku Irfan",
     author_email="tengku.irfan0278@student.unri.ac.id",
     description="A modular, Lego-like toolbox for data cleaning and image preprocessing",

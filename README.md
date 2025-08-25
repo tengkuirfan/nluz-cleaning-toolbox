@@ -12,6 +12,8 @@ Check demo folder in the source code for example.
 |--------|-------------|------------|-------------------|
 | `replace_symbols()` | Replace specified symbols in columns | `columns`, `symbols=None`, `replacement=""` | Default symbols: `,`, `.`, `!`, `?`, `$`, `%`, `&` |
 | `handle_missing()` | Handle missing data using various strategies | `columns`, `method="mean"`, `fill_value=None`, `func=None`, `ref_col=None` | `"mean"`, `"median"`, `"drop"`, `"value"`, `"column"`, `"ffill"`, `"bfill"`, `"interpolate"`, `"function"` |
+| `detect_outliers_zscore()` | Detect outliers using Z-score method (returns outliers without modifying data) | `columns`, `threshold=2` | Returns dict with outliers and their Z-scores |
+| `detect_outliers_iqr()` | Detect outliers using IQR method (returns outliers without modifying data) | `columns`, `k=1.5` | Returns dict with outliers and boundary values |
 | `handle_outliers_zscore()` | Handle outliers using Z-score method | `columns`, `threshold=2`, `action="remove"` | Actions: `"remove"`, `"nan"` |
 | `handle_outliers_iqr()` | Handle outliers using IQR method | `columns`, `k=1.5`, `action="remove"` | Actions: `"remove"`, `"nan"` |
 | `scale()` | Scale columns using various methods | `columns`, `method="standard"` | `"standard"`, `"minmax"`, `"robust"` |
@@ -43,6 +45,31 @@ Check demo folder in the source code for example.
 - Input: `dict` of images or `list` of images
 - Output: Modified `ImageCleaning` instance (use `.get()` to retrieve images)
 - Images should be in OpenCV format (numpy arrays)
+
+## Quick Example
+
+```python
+from nluztoolbox import DataCleaning
+import pandas as pd
+
+# Load your data
+df = pd.read_csv('your_data.csv')
+
+# Initialize the cleaning pipeline
+cleaner = DataCleaning(df)
+
+# Detect outliers first (without modifying data)
+outliers_zscore = cleaner.detect_outliers_zscore(['price', 'quantity'], threshold=2.5)
+print(f"Found {len(outliers_zscore['price'])} price outliers")
+
+# Chain multiple operations
+result = (cleaner
+    .replace_symbols(['text_column'], symbols=[',', '.'], replacement='')
+    .handle_missing(['age'], method='median')
+    .handle_outliers_iqr(['price'], k=1.5, action='remove')
+    .scale(['price', 'quantity'], method='standard')
+    .get())
+```
 
 ## Installation
 

@@ -66,7 +66,6 @@ class DataCleaning:
         - "function": Apply a custom function to fill missing values
         """
         self._validate_columns(columns)
-        # Validate required parameters for specific methods
         if method == "value" and fill_value is None:
             raise ValueError("fill_value must be provided when method='value'")
         if method == "function" and func is None:
@@ -97,38 +96,81 @@ class DataCleaning:
         self._log_operation("handle_missing", f"Handled missing values in columns {columns} using method '{method}'")
         return self
 
-    def handle_outliers_zscore(self, columns: List[str], threshold: float = 2, action: str = "remove") -> 'DataCleaning':
-        """Handle outliers in specified columns using Z-score method."""
+    def detect_outliers_zscore(self, columns: List[str], threshold: float = 2) -> Dict[str, pd.DataFrame]:
+        """
+        Detect outliers in specified columns using Z-score method.
+        Returns a dictionary with column names as keys and DataFrames containing outliers as values.
+        """
         self._validate_columns(columns)
+        outliers_dict = {}
+        
         for col in columns:
             non_null_data = self.df[col].dropna()
             z_scores = np.abs(stats.zscore(non_null_data))
-            outlier_indices = non_null_data.index[z_scores >= threshold]   
-            if action == "remove":
-                self.df = self.df.drop(outlier_indices)
-            elif action == "nan":
-                self.df.loc[outlier_indices, col] = np.nan
-            else:
-                raise ValueError(f"Unknown action '{action}' for outlier handling.")
+            outlier_indices = non_null_data.index[z_scores >= threshold]
+            outliers_dict[col] = self.df.loc[outlier_indices, [col]].copy()
+            outliers_dict[col]['z_score'] = z_scores[z_scores >= threshold]
+            
+        self._log_operation("detect_outliers_zscore", f"Detected outliers in columns {columns} using Z-score method with threshold {threshold}")
+        return outliers_dict
+
+    def detect_outliers_iqr(self, columns: List[str], k: float = 1.5) -> Dict[str, pd.DataFrame]:
+        """
+        Detect outliers in specified columns using Interquartile Range (IQR) method.
+        Returns a dictionary with column names as keys and DataFrames containing outliers as values.
+        """
+        self._validate_columns(columns)
+        outliers_dict = {}
+        
+        for col in columns:
+            Q1, Q3 = self.df[col].quantile(0.25), self.df[col].quantile(0.75)
+            IQR = Q3 - Q1
+            lower_bound = Q1 - k * IQR
+            upper_bound = Q3 + k * IQR
+            
+            mask = (self.df[col] < lower_bound) | (self.df[col] > upper_bound)
+            outliers_dict[col] = self.df.loc[mask, [col]].copy()
+            outliers_dict[col]['lower_bound'] = lower_bound
+            outliers_dict[col]['upper_bound'] = upper_bound
+            outliers_dict[col]['IQR'] = IQR
+            
+        self._log_operation("detect_outliers_iqr", f"Detected outliers in columns {columns} using IQR method with k={k}")
+        return outliers_dict
+
+    def handle_outliers_zscore(self, columns: List[str], threshold: float = 2, action: str = "remove") -> 'DataCleaning':
+        """Handle outliers in specified columns using Z-score method."""
+        outliers_dict = self.detect_outliers_zscore(columns, threshold)
+        
+        for col in columns:
+            if len(outliers_dict[col]) > 0:
+                outlier_indices = outliers_dict[col].index
+                if action == "remove":
+                    self.df = self.df.drop(outlier_indices)
+                elif action == "nan":
+                    self.df.loc[outlier_indices, col] = np.nan
+                else:
+                    raise ValueError(f"Unknown action '{action}' for outlier handling.")
+        
         self._log_operation("handle_outliers_zscore", f"Handled outliers in columns {columns} using Z-score method with threshold {threshold}")
         return self
 
     def handle_outliers_iqr(self, columns: List[str], k: float = 1.5, action: str = "remove") -> 'DataCleaning':
         """Handle outliers in specified columns using Interquartile Range (IQR) method."""
-        self._validate_columns(columns)
+        outliers_dict = self.detect_outliers_iqr(columns, k)
+        
         for col in columns:
-            Q1, Q3 = self.df[col].quantile(0.25), self.df[col].quantile(0.75)
-            IQR = Q3 - Q1
-            mask = (self.df[col] >= Q1 - k * IQR) & (self.df[col] <= Q3 + k * IQR)
-            if action == "remove":
-                self.df = self.df[mask]
-            elif action == "nan":
-                self.df.loc[~mask, col] = np.nan
-            else:
-                raise ValueError(f"Unknown action '{action}' for outlier handling.")
+            if len(outliers_dict[col]) > 0:
+                outlier_indices = outliers_dict[col].index
+                if action == "remove":
+                    self.df = self.df.drop(outlier_indices)
+                elif action == "nan":
+                    self.df.loc[outlier_indices, col] = np.nan
+                else:
+                    raise ValueError(f"Unknown action '{action}' for outlier handling.")
+        
         self._log_operation("handle_outliers_iqr", f"Handled outliers in columns {columns} using IQR method with k={k}")
         return self
-
+    
     def scale(self, columns: List[str], method: str = "standard") -> 'DataCleaning':
         """
         Scale specified columns using various scaling methods.
@@ -208,7 +250,7 @@ class ImageCleaning:
         if isinstance(images, list):
             self.images = {i: img for i, img in enumerate(images)}
         elif isinstance(images, np.ndarray):
-            self.images = {0: images}  # Single image
+            self.images = {0: images}
         elif isinstance(images, dict):
             self.images = images.copy()
         else:

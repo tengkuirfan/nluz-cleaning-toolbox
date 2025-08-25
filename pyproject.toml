@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "nluz-cleaning-toolbox"
-version = "0.2.0"
+version = "0.2.1"
 description = "A modular, Lego-like toolbox for data cleaning and image preprocessing"
 readme = "README.md"
 authors = [
