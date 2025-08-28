@@ -39,3 +39,6 @@ htmlcov/
 *.xlsx
 *.json
 *.parquet
+
+# Miscellaneous folder
+misc

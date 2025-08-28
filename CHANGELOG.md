@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.2.2] - 2025-08-28
+
+### Changed
+- **BREAKING CHANGE**: Modified `detect_outliers_zscore()` and `detect_outliers_iqr()` methods to return a single DataFrame instead of a dictionary
+  - Methods now return a DataFrame containing all outlier rows from the specified columns
+  - Simplified return type makes it easier to work with outliers in downstream analysis
+  - More intuitive and consistent with pandas conventions
+
+### Improved
+- Refactored outlier detection methods to use helper methods for better code organization
+- Added `_get_column_outliers_zscore()` and `_get_column_outliers_iqr()` helper methods
+- Eliminated code duplication between detection and handling methods
+- More concise and maintainable codebase following DRY principles
+
+### Technical Details
+- Detection methods now aggregate outliers from all specified columns into a single result
+- Handler methods optimized for different actions (remove vs. nan)
+- Improved performance by avoiding redundant calculations
+
 ## [0.2.1] - 2025-08-25
 
 ### Added
