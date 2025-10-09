@@ -1,19 +1,8 @@
 # NLuziaf's Cleaning Toolbox
 
-**Version 0.3.0** - Refactored Release 🎉
-
 A modular, Lego-like toolbox for **data cleaning** and **image preprocessing**, built for fast, reusable workflows. Currently, it is under closed testing and not yet available for public release.
 
 Check demo folder in the source code for example.
-
-## What's New in 0.3.0
-
-- **Refactored Architecture**: Separated into `TabularCleaning` and `ImageCleaning` classes for better organization
-- **Operations Logging**: Automatic tracking of all transformations applied
-- **Enhanced Error Handling**: Comprehensive validation with helpful error messages
-- **Type Hints**: Full type annotations for better IDE support
-- **Improved Documentation**: Detailed docstrings for all methods
-- **Better Method Chaining**: More intuitive fluent API
 
 ## Methods Reference
 
@@ -44,6 +33,30 @@ Check demo folder in the source code for example.
 | `process_image()` | Apply custom function to each image | `func` | Any custom function that takes an image and returns processed image |
 | `get()` | Return the processed images dictionary | None | Returns `dict` of processed images |
 
+### TextCleaning Class Methods
+
+| Method | Description | Parameters |
+|--------|-------------|------------|
+| `lowercase()` | Convert to lowercase | - |
+| `uppercase()` | Convert to uppercase | - |
+| `titlecase()` | Convert to title case | - |
+| `expand_contractions()` | Expand contractions | `custom_contractions=None` |
+| `remove_punctuation()` | Remove punctuation | `keep=None` |
+| `remove_digits()` | Remove digits | - |
+| `remove_whitespace()` | Remove whitespace | `mode="extra"` |
+| `remove_urls()` | Remove URLs | - |
+| `remove_emails()` | Remove emails | - |
+| `remove_html_tags()` | Remove HTML tags | - |
+| `split_text()` | Split text | `delimiter=' '`, `max_split=-1` |
+| `tokenize()` | Tokenize text | `method="word"` |
+| `remove_stopwords()` | Remove stopwords | `language="english"`, `custom_stopwords=None` |
+| `stem()` | Apply stemming | `method="porter"`, `language="english"` |
+| `lemmatize()` | Apply lemmatization | `pos="n"` |
+| `replace_pattern()` | Replace pattern | `pattern`, `replacement=""`, `regex=True` |
+| `process_text()` | Custom function | `func` |
+| `get()` | Get result | - |
+| `get_log()` | Get operation log | - |
+
 ### Usage Notes
 
 **TabularCleaning:**
@@ -60,6 +73,21 @@ Check demo folder in the source code for example.
 - Images are automatically indexed if provided as list or single array
 - Output: Modified `ImageCleaning` instance (use `.get()` to retrieve dict of images)
 - Images should be in OpenCV format (numpy arrays: 2D grayscale or 3D color)
+
+**TextCleaning:**
+- All methods return `self` for method chaining (except `get()`, `get_log()`, `split_text()`, and `tokenize()` on strings)
+- Input: Single text `str` or `pd.DataFrame` with text column (specify with `text_column` parameter)
+- Constructor parameter `copy=True` creates a copy of the DataFrame (default behavior)
+- Works seamlessly with DataFrame columns - applies cleaning to every row
+- Output: Modified `TextCleaning` instance (use `.get()` to retrieve text/DataFrame)
+- Built-in contraction library with 117+ English contractions (access with `get_contractions_dict()`)
+- NLTK features (tokenization, stopwords, stemming, lemmatization) require NLTK installation
+  - Install: `pip install nltk`
+  - Setup data: `from nluztoolbox import download_nltk_data; download_nltk_data()`
+- Supports multiple languages for stopwords and stemming (15+ languages via NLTK)
+- Simple tokenization available without NLTK using `tokenize(method="simple")`
+- Access `operations_log` via `.get_log()` to see all transformations applied
+
 
 ## Quick Examples
 
@@ -116,6 +144,83 @@ processed = (ImageCleaning(images)
 # Access processed images
 for name, img in processed.items():
     print(f"{name}: {img.shape}, range: [{img.min():.3f}, {img.max():.3f}]")
+```
+
+### Text Cleaning
+
+```python
+from nluztoolbox import TextCleaning
+import pandas as pd
+
+# Example 1: Clean a single text string
+text = "I can't believe it's 2024! Visit https://example.com"
+cleaned = (TextCleaning(text)
+    .lowercase()
+    .expand_contractions()
+    .remove_urls()
+    .remove_punctuation()
+    .get())
+print(cleaned)  # Output: "i cannot believe it is 2024 visit"
+
+# Example 2: Clean DataFrame column
+df = pd.DataFrame({
+    'review': [
+        "I CAN'T believe this! Visit https://example.com",
+        "Don't buy! Email: test@example.com",
+        "AMAZING product!!! <b>Best ever</b>"
+    ]
+})
+
+# Apply cleaning to DataFrame column
+df_cleaned = (TextCleaning(df, text_column='review')
+    .lowercase()
+    .expand_contractions()
+    .remove_urls()
+    .remove_emails()
+    .remove_html_tags()
+    .remove_punctuation()
+    .remove_whitespace(mode="extra")
+    .get())
+print(df_cleaned)
+
+# Example 3: Advanced NLP pipeline (requires NLTK)
+# First-time setup: from nluztoolbox import download_nltk_data; download_nltk_data()
+text = "I'm running quickly through the beautiful forest!"
+result = (TextCleaning(text)
+    .lowercase()
+    .expand_contractions()
+    .remove_punctuation()
+    .remove_stopwords(language="english")
+    .stem(method="porter")
+    .get())
+print(result)  # Output: "run quickli beauti forest"
+
+# Example 4: Tokenization
+text = "Hello! How are you doing today?"
+tokens = TextCleaning(text).tokenize(method="simple")
+print(tokens)  # Output: ['Hello!', 'How', 'are', 'you', 'doing', 'today?']
+
+# Example 5: Use with TabularCleaning for mixed data types
+from nluztoolbox import TabularCleaning
+
+df = pd.DataFrame({
+    'price': [100, 200, None, 150],
+    'review': ["Great!", "Bad product", "Amazing!", "Okay"]
+})
+
+# Define text cleaning function
+def clean_review(text):
+    return (TextCleaning(str(text))
+        .lowercase()
+        .remove_punctuation()
+        .get())
+
+# Combine tabular and text cleaning
+result = (TabularCleaning(df)
+    .handle_missing(['price'], method='mean')
+    .process_column('review', func=clean_review)
+    .get())
+print(result)
 ```
 
 ### Advanced Usage
@@ -207,6 +312,22 @@ If you're upgrading from version 0.2.x, please see the [MIGRATION_GUIDE.md](MIGR
 - ✅ Batch processing
 - ✅ Method chaining
 
+### TextCleaning
+- ✅ Flexible input (single text string or DataFrame column)
+- ✅ Case conversion (lowercase, uppercase, titlecase)
+- ✅ Contraction expansion (117+ built-in contractions)
+- ✅ Punctuation and symbol removal
+- ✅ URL, email, and HTML tag removal
+- ✅ Text splitting and tokenization
+- ✅ Stopwords removal (15+ languages via NLTK)
+- ✅ Stemming (Porter, Snowball, Lancaster)
+- ✅ Lemmatization (WordNet-based)
+- ✅ Multi-language support
+- ✅ Custom pattern replacement
+- ✅ Custom text processing functions
+- ✅ Operations logging
+- ✅ Method chaining
+
 ## Testing
 
 The package includes comprehensive tests. To run tests:
@@ -217,9 +338,18 @@ python test_refactored_code.py
 
 # Run demo script
 python demo_refactored.py
+
+# Test TextCleaning module
+python test_text_cleaning.py
+
+# Run TextCleaning demos
+python demo/demoTextCleaning.py
+python demo/example_text_with_dataframe.py
 ```
 
 See [TESTING_RESULTS.md](TESTING_RESULTS.md) for detailed testing documentation.
+
+For complete TextCleaning documentation, see [TEXT_CLEANING_README.md](TEXT_CLEANING_README.md).
 
 ## Contributing
 
